@@ -1,0 +1,42 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+   http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+
+    <changeSet author="rustam" id="1">
+        <createTable tableName="employee">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="varchar" value="255">
+                <!-- todo add constraints -->
+                <constraints nullable="false" />
+            </column>
+            <column name="age" type="smallint">
+                <constraints nullable="false" />
+            </column>
+            <column name="state" type="varchar" value="255">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createTable tableName="employee_check">
+            <column name="employee_id" type="bigint"/>
+            <column name="check_name" type="varchar" value="255" />
+            <column name="check_region" type="varchar" valueDate="255" />
+            <column name="created" type="datetime" defaultValueDate="${now}">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="employee_check" columnNames="employee_id,check_name" />
+        <addForeignKeyConstraint baseTableName="employee_check"
+                                 baseColumnNames="employee_id"
+                                 constraintName="fk_employee_check_employee"
+                                 referencedTableName="employee"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
