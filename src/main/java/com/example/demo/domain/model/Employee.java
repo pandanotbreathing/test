@@ -1,20 +1,21 @@
 package com.example.demo.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Employee {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
