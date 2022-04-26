@@ -3,21 +3,14 @@ package com.example.demo.domain.config;
 import com.example.demo.domain.model.EmployeeEvent;
 import com.example.demo.domain.model.EmployeeState;
 import com.example.demo.domain.model.EmployeeStateRegion;
+import com.example.demo.domain.state.machine.ApproveTransitionGuard;
+import com.example.demo.domain.state.machine.TriggerApproveAction;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.guard.Guard;
-import org.springframework.statemachine.listener.StateMachineListenerAdapter;
-import org.springframework.statemachine.transition.Transition;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Slf4j
 @EnableStateMachineFactory
@@ -66,73 +59,24 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<EmployeeSt
                     .withExternal()
                     .source(EmployeeState.WORK_PERMIT_CHECK_PENDING_VERIFICATION)
                     .target(EmployeeState.WORK_PERMIT_CHECK_FINISHED)
-                .action(it -> {
-                    System.out.println(it);
-                    it.getStateMachine().sendEvent(Mono.just(MessageBuilder.createMessage(EmployeeEvent.APPROVE, it.getMessageHeaders()))).subscribe();
-                })
-                .guard(test -> {
-                    return true;
-                })
+                    .action(new TriggerApproveAction())
                     .event(EmployeeEvent.FINISH_WORK_PERMIT_CHECK)
-//                    .and()
-//                    .withExternal()
-//                    .source(EmployeeState.WORK_PERMIT_CHECK_FINISHED)
-//                    .target(EmployeeState.APPROVED)
-//                    .guard(stateContext -> {
-//                        return stateContext.getStateMachine().getState().getIds().containsAll(List.of(EmployeeState.SECURITY_CHECK_FINISHED, EmployeeState.WORK_PERMIT_CHECK_FINISHED));
-//                    })
                     .and()
                     .withExternal()
                     .source(EmployeeState.SECURITY_CHECK_STARTED)
                     .target(EmployeeState.SECURITY_CHECK_FINISHED)
                     .event(EmployeeEvent.FINISH_SECURITY_CHECK)
-                .action(it -> {
-                    System.out.println(it);
-                    it.getStateMachine().sendEvent(Mono.just(MessageBuilder.createMessage(EmployeeEvent.APPROVE, it.getMessageHeaders()))).subscribe();
-                })
-//                    .and()
-//                    .withExternal()
-//                    .source(EmployeeState.SECURITY_CHECK_FINISHED)
-//                .action(ewe -> {
-//                    System.out.println(ewe);
-//                })
-//                    .target(EmployeeState.APPROVED)
-//                    .guard(stateContext -> {
-//                        return stateContext.getStateMachine().getState().getIds().containsAll(List.of(EmployeeState.SECURITY_CHECK_FINISHED, EmployeeState.WORK_PERMIT_CHECK_FINISHED));
-//                    })
+                    .action(new TriggerApproveAction())
                 .and()
                 .withExternal()
                 .source(EmployeeState.IN_CHECK)
                 .target(EmployeeState.APPROVED)
                 .event(EmployeeEvent.APPROVE)
-                .guard(new Guard<EmployeeState, EmployeeEvent>() {
-                    @Override
-                    public boolean evaluate(StateContext<EmployeeState, EmployeeEvent> stateContext) {
-                        return stateContext.getStateMachine().getState().getIds().containsAll(List.of(EmployeeState.SECURITY_CHECK_FINISHED, EmployeeState.WORK_PERMIT_CHECK_FINISHED));
-//                        return false;
-                    }
-                })
+                .guard(new ApproveTransitionGuard())
                 .and()
                 .withExternal()
                 .source(EmployeeState.APPROVED)
                 .target(EmployeeState.ACTIVE)
                 .event(EmployeeEvent.ACTIVATE);
-    }
-
-    @Override
-    public void configure(StateMachineConfigurationConfigurer<EmployeeState, EmployeeEvent> config) throws Exception {
-        StateMachineListenerAdapter<EmployeeState, EmployeeEvent> adapter = new StateMachineListenerAdapter<>(){
-//            @Override
-//            public void stateChanged(State<EmployeeState, EmployeeEvent> from, State<EmployeeState, EmployeeEvent> to) {
-//                log.info("state changed from: {}, to: {}", from, to);
-//            }
-
-            @Override
-            public void transitionEnded(Transition<EmployeeState, EmployeeEvent> transition) {
-                log.info("transition ended {}", transition);
-            }
-        };
-
-        config.withConfiguration().listener(adapter);
     }
 }
