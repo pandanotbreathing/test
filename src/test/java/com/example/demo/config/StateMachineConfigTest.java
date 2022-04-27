@@ -181,38 +181,6 @@ public class StateMachineConfigTest {
         Assertions.assertFalse(stateMachine.getState().getIds().contains(EmployeeState.WORK_PERMIT_CHECK_FINISHED));
     }
 
-
-//    public void test() {
-//        sendEvent(stateMachine, EmployeeEvent.BEGIN_CHECK);
-////        stateMachine.sendEvent(Mono.just(MessageBuilder.withPayload(EmployeeEvent.BEGIN_CHECK).build()));
-//        Assertions.assertEquals(EmployeeState.IN_CHECK, stateMachine.getState().getId());
-//        sendEvent(stateMachine, EmployeeEvent.ACTIVATE);
-////        stateMachine.sendEvent(EmployeeEvent.ACTIVATE);
-//        Assertions.assertEquals(EmployeeState.IN_CHECK, stateMachine.getState().getId());
-////        System.out.println(stateMachine.getState().toString());
-////        Message<EmployeeEvent> eventMessage = MessageBuilder.withPayload(EmployeeEvent.COMPLETE_INITIAL_WORK_PERMIT_CHECK)
-////                .setHeader(EMPLOYEE_ID_HEADER, "1")
-////                .build();
-////        stateMachine.sendEvent(Mono.just(eventMessage)).blockLast();
-//        sendEvent(stateMachine, EmployeeEvent.COMPLETE_INITIAL_WORK_PERMIT_CHECK);
-////        stateMachine.sendEvent(Mono.just(eventMessage)).blockLast();
-//        Assertions.assertTrue(stateMachine.getState().getIds().contains(EmployeeState.WORK_PERMIT_CHECK_PENDING_VERIFICATION));
-////        System.out.println(stateMachine.getState().toString());
-////        stateMachine.sendEvent(EmployeeEvent.FINISH_WORK_PERMIT_CHECK);
-//        sendEvent(stateMachine, EmployeeEvent.FINISH_WORK_PERMIT_CHECK);
-//        Assertions.assertTrue(stateMachine.getState().getIds().contains(EmployeeState.WORK_PERMIT_CHECK_FINISHED));
-//        Assertions.assertFalse(stateMachine.getState().getIds().contains(EmployeeState.APPROVED));
-////        System.out.println(stateMachine.getState().toString());
-//        sendEvent(stateMachine, EmployeeEvent.FINISH_SECURITY_CHECK);
-////        stateMachine.sendEvent(EmployeeEvent.FINISH_SECURITY_CHECK);
-//        Assertions.assertEquals(EmployeeState.APPROVED, stateMachine.getState().getId());
-//
-////        System.out.println(stateMachine.getState().toString());
-////        stateMachine.sendEvent(EmployeeEvent.ACTIVATE);
-//        sendEvent(stateMachine, EmployeeEvent.ACTIVATE);
-//        Assertions.assertEquals(EmployeeState.ACTIVE, stateMachine.getState().getId());
-////        System.out.println(stateMachine.getState().toString());
-//    }
     private void sendEvent(StateMachine<EmployeeState, EmployeeEvent> stateMachine, EmployeeEvent event) {
         Message<EmployeeEvent> message = MessageBuilder.withPayload(event)
                 .setHeader(EMPLOYEE_ID_HEADER, "1")

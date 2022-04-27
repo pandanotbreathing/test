@@ -21,7 +21,6 @@
             <column name="state" type="varchar" value="255">
                 <constraints nullable="false" />
             </column>
-            <column name="modified" type="datetime" defaultValueDate="${now}"/>
         </createTable>
         <createTable tableName="employee_check">
             <column name="employee_id" type="bigint"/>

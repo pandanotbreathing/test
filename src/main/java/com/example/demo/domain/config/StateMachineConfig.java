@@ -5,14 +5,12 @@ import com.example.demo.domain.model.EmployeeState;
 import com.example.demo.domain.model.EmployeeStateRegion;
 import com.example.demo.domain.state.machine.ApproveTransitionGuard;
 import com.example.demo.domain.state.machine.TriggerApproveAction;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
-@Slf4j
 @EnableStateMachineFactory
 @Configuration
 public class StateMachineConfig extends StateMachineConfigurerAdapter<EmployeeState, EmployeeEvent> {

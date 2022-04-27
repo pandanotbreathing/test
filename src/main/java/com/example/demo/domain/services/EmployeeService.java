@@ -9,6 +9,7 @@ import com.example.demo.domain.repository.EmployeeCheckRepository;
 import com.example.demo.domain.repository.EmployeeRepository;
 import com.example.demo.domain.state.machine.EmployeeStateChangeListener;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class EmployeeService {
@@ -37,10 +39,12 @@ public class EmployeeService {
     }
 
     public void processEvent(Long employeeId, EmployeeEvent event) {
+        log.info("processing {} event for employee {}", event, employeeId);
         Message<EmployeeEvent> eventMessage = MessageBuilder.withPayload(event)
                 .setHeader(EMPLOYEE_ID_HEADER, employeeId)
                 .build();
         StateMachine<EmployeeState, EmployeeEvent> stateMachine = getStateMachine(employeeId);
+        log.info("sending {} event to state machine {}", event, eventMessage);
         stateMachine.sendEvent(Mono.just(eventMessage)).blockLast();
     }
 
@@ -58,6 +62,7 @@ public class EmployeeService {
 
     private StateMachine<EmployeeState, EmployeeEvent> getStateMachine(Long employeeId) {
         Employee employee = get(employeeId);
+        log.info("employee {} is found {}. resetting state machine", employeeId, employee);
         StateMachine<EmployeeState, EmployeeEvent> stateMachine = stateMachineFactory.getStateMachine();
 
         stateMachine.stopReactively().block();
@@ -67,6 +72,7 @@ public class EmployeeService {
                     List<StateMachineContext<EmployeeState, EmployeeEvent>> contexts = new ArrayList<>();
                     if (EmployeeState.IN_CHECK.equals(employee.getState())) {
                         List<EmployeeCheck> latestCheckStates = checkRepository.findLatestCheckStates(employeeId);
+                        log.info("employee with status IN_CHECK, setting check states to state machine {}", latestCheckStates);
                         latestCheckStates.forEach(item -> contexts.add(
                                 new DefaultStateMachineContext<>(
                                         item.getCheckName(),
@@ -87,6 +93,7 @@ public class EmployeeService {
                             .block();
                 });
         stateMachine.startReactively().block();
+        log.info("state machine started successfully");
         return stateMachine;
     }
 }

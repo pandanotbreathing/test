@@ -6,6 +6,7 @@ import com.example.demo.domain.repository.EmployeeCheckRepository;
 import com.example.demo.domain.repository.EmployeeRepository;
 import com.example.demo.domain.services.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.state.State;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class EmployeeStateChangeListener extends StateMachineInterceptorAdapter<EmployeeState, EmployeeEvent> {
@@ -31,6 +33,7 @@ public class EmployeeStateChangeListener extends StateMachineInterceptorAdapter<
     ) {
         Long employeeId = (Long) message.getHeaders().get(EmployeeService.EMPLOYEE_ID_HEADER);
         if (employeeId == null || employeeId <= 0) {
+            log.warn("triggered preStateChange action w/o EMPLOYEE_ID_HEADER {}", message);
             return;
         }
 
@@ -40,6 +43,7 @@ public class EmployeeStateChangeListener extends StateMachineInterceptorAdapter<
     }
 
     private void processEmployeeState(Long employeeId, EmployeeState state) {
+        log.info("processing employee {} state {}", employeeId, state);
         if (EmployeeStateRegion.MAIN.equals(state.getRegion())) {
             saveEmployeeState(employeeId, state);
             return;
@@ -58,6 +62,7 @@ public class EmployeeStateChangeListener extends StateMachineInterceptorAdapter<
                             .checkRegion(state.getRegion())
                             .build()
             );
+            log.info("employee {} check state {} has been set", employeeId, state);
         }
     }
 
@@ -65,5 +70,6 @@ public class EmployeeStateChangeListener extends StateMachineInterceptorAdapter<
         Employee employee = employeeRepository.findById(employeeId).orElseThrow(EmployeeNotFoundException::new);
         employee.setState(state);
         employeeRepository.save(employee);
+        log.info("employee {} state {} has been set", employeeId, state);
     }
 }
