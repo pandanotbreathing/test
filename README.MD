@@ -1,12 +1,14 @@
 ###Startup
 
-prerequisites: java11, maven, docker, docker-compose
+prerequisites: java11, maven, docker, docker-compose and free 8080 + 5432 ports
 
 to startup application execute from project root dir:
 
 ```
 ./bin/startup-application.sh
 ```
+
+access http://localhost:8080/swagger-ui/index.html
 
 ###couple more words about implementation
 
